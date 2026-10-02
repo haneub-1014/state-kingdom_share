@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="state-kingdom-build" content="preview-opening-20261002-2250">
   <meta name="theme-color" content="#071326">
   <title>상태 왕국의 마법사 · 얼음 성의 봉인</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%236ddcff' d='M32 3 45 24 32 61 19 24z'/%3E%3Cpath fill='%23fff' opacity='.7' d='m32 3 2 40-15-19z'/%3E%3C/svg%3E">
@@ -509,7 +510,9 @@ body[data-chapter="7"] #content.boss-spell-layout{grid-template-columns:minmax(0
 @media(max-height:610px) and (orientation:landscape){body[data-chapter="7"] .boss-vitals{top:52px;padding:6px 9px}body[data-chapter="7"] .boss-vital{margin-bottom:4px}body[data-chapter="7"] .boss-vitals small{font-size:10px}body[data-chapter="7"] .inventory.show .tool-slot{height:min(48%,105px)!important}body[data-chapter="7"] #content.boss-spell-layout>.story-bubble{padding:8px 11px!important}body[data-chapter="7"] #bossSpells .spell-card{min-height:46px!important;padding:3px 6px!important}}
 /* Chapter 3: the three learned techniques stay beside the dialogue. */
 
-#previewStart[hidden]{display:none!important}
+#previewStart[hidden],#gameApp[hidden]{display:none!important}
+#opening:not([hidden]){display:block!important;z-index:180}
+#previewStart:not([hidden]){z-index:180}
 </style>
 </head>
 <body>
@@ -519,7 +522,7 @@ body[data-chapter="7"] #content.boss-spell-layout{grid-template-columns:minmax(0
   <div class="opening-dialogue"><div class="opening-speaker" id="openingSpeaker">이야기꾼</div><p id="openingLine" aria-live="polite"></p><button id="openingNext" type="button">이야기 계속 보기</button></div>
 </section>
 <section class="login" id="previewStart" hidden aria-label="체험판 시작"><div class="login-card"><div class="eyebrow">STATE KINGDOM · PREVIEW</div><h1>상태 왕국의 마법사</h1><p>얼음 성에서 첫 번째 룬을 찾는 여정을 시작하세요. 수련학교는 왕국 지도에서 따로 체험할 수 있습니다.</p><button class="primary" type="button" id="previewStartButton" disabled>시작하기</button><p id="previewStartStatus" role="status">체험판 공개 상태를 확인하고 있습니다.</p><p class="privacy">학번과 이름을 입력하지 않습니다. 학습 기록은 저장하지 않습니다.</p></div></section>
-<div class="app">
+<div class="app" id="gameApp" hidden>
   <header><div class="brand">상태 왕국의 마법사</div><div class="chapter">Chapter 1 · 얼음 성의 봉인</div><div class="scene-count" id="sceneCount">진행도</div><div class="bar"><i id="topProgress"></i></div><button id="mapReturn" type="button" onclick="returnToKingdomMap()" aria-label="왕국 지도로 돌아가기" hidden>왕국 지도</button></header>
   <main>
     <section class="stage" aria-label="이야기 일러스트"><div class="boss-vitals" id="bossVitals" hidden aria-live="polite"><div class="boss-vital"><b>HP <span id="bossHpText">100 / 100</span></b><div class="boss-bar"><i id="bossHpBar"></i></div></div><div class="boss-vital"><b>MP <span id="bossMpText">100 / 100</span></b><div class="boss-bar"><i id="bossMpBar"></i></div></div><small id="bossTurnText">기술을 신중하게 골라 봐.</small></div>
@@ -997,8 +1000,7 @@ const studyViewport=document.getElementById('runeStudy');
 new MutationObserver(()=>{if(!studyViewport.hidden){studyViewport.scrollTop=0;requestAnimationFrame(()=>{if(!studyViewport.hidden)studyViewport.scrollTop=0})}}).observe(studyViewport,{attributes:true,attributeFilter:['hidden'],childList:true});
 /* Revocable preview: uses no student account or persistent progress. */
 function isPreview(){return PREVIEW_CONFIG.mode===true}
-function showPreviewClosed(message){
- if(!isPreview()||previewClosed)return;
+function showPreviewClosed(message){ if(!isPreview()||previewClosed)return;
  previewClosed=true;previewAllowed=false;cancelBossCast();
  if(particleFrame){cancelAnimationFrame(particleFrame);particleFrame=0}
  el('previewStartButton').disabled=true;
@@ -1052,7 +1054,7 @@ function initializePreview(){
  if(!isPreview())return;
  state.preview=true;state.name='체험';state.studentNo='';state.classId='';
  if(openingTimer){clearInterval(openingTimer);openingTimer=null}
- el('opening').hidden=false;el('openingNext').disabled=true;el('openingLine').textContent='체험판 공개 상태를 확인하고 있습니다.';
+ el('gameApp').hidden=true;el('previewStart').hidden=true;el('opening').hidden=false;el('openingNext').disabled=true;el('openingLine').textContent='체험판 공개 상태를 확인하고 있습니다.';
  const replayAllowed=new WeakSet(),replayedPresses=new WeakSet();let clickCheckPending=false,heldPointer=null,heldKey=null;
  document.addEventListener('pointerup',()=>{heldPointer=null},true);
  document.addEventListener('pointercancel',()=>{heldPointer=null},true);
@@ -1078,7 +1080,7 @@ function initializePreview(){
  },true);
  el('previewStartButton').addEventListener('click',()=>{
   el('previewStartButton').disabled=true;
-  checkPreviewAccess(()=>{el('previewStart').hidden=true;returnToKingdomMap();startKingdomChapter(1);state.learnedSpells=['fire','frost'];chapterStart()},true);
+  checkPreviewAccess(()=>{el('previewStart').hidden=true;el('gameApp').hidden=false;returnToKingdomMap();startKingdomChapter(1);state.learnedSpells=['fire','frost'];chapterStart()},true);
  });
  checkPreviewAccess(()=>{el('previewStartButton').disabled=false;el('previewStartStatus').textContent='로그인 없이 체험할 수 있습니다.';el('openingNext').disabled=false;openingIndex=0;showOpeningBeat()},true);
  setInterval(()=>{if(!document.hidden&&!previewClosed)checkPreviewAccess(null,true)},5000);
