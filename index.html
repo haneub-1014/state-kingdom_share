@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <meta name="state-kingdom-build" content="preview-opening-20261002-2250">
+  <meta name="state-kingdom-build" content="preview-tutorial-20261002-2303">
   <meta name="theme-color" content="#071326">
   <title>상태 왕국의 마법사 · 얼음 성의 봉인</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%236ddcff' d='M32 3 45 24 32 61 19 24z'/%3E%3Cpath fill='%23fff' opacity='.7' d='m32 3 2 40-15-19z'/%3E%3C/svg%3E">
@@ -521,7 +521,7 @@ body[data-chapter="7"] #content.boss-spell-layout{grid-template-columns:minmax(0
   <div class="opening-shadow"></div><div class="opening-mark"><span>상태 왕국의 마법사</span><small>왕국의 잃어버린 룬</small></div>
   <div class="opening-dialogue"><div class="opening-speaker" id="openingSpeaker">이야기꾼</div><p id="openingLine" aria-live="polite"></p><button id="openingNext" type="button">이야기 계속 보기</button></div>
 </section>
-<section class="login" id="previewStart" hidden aria-label="체험판 시작"><div class="login-card"><div class="eyebrow">STATE KINGDOM · PREVIEW</div><h1>상태 왕국의 마법사</h1><p>얼음 성에서 첫 번째 룬을 찾는 여정을 시작하세요. 수련학교는 왕국 지도에서 따로 체험할 수 있습니다.</p><button class="primary" type="button" id="previewStartButton" disabled>시작하기</button><p id="previewStartStatus" role="status">체험판 공개 상태를 확인하고 있습니다.</p><p class="privacy">학번과 이름을 입력하지 않습니다. 학습 기록은 저장하지 않습니다.</p></div></section>
+<section class="login" id="previewStart" hidden aria-label="체험판 시작"><div class="login-card"><div class="eyebrow">STATE KINGDOM · PREVIEW</div><h1>상태 왕국의 마법사</h1><p>수련학교에서 입자렌즈와 마력지팡이 사용법을 익힌 뒤, 첫 번째 룬이 있는 얼음 성으로 떠나세요.</p><button class="primary" type="button" id="previewStartButton" disabled>시작하기</button><p id="previewStartStatus" role="status">체험판 공개 상태를 확인하고 있습니다.</p><p class="privacy">학번과 이름을 입력하지 않습니다. 학습 기록은 저장하지 않습니다.</p></div></section>
 <div class="app" id="gameApp" hidden>
   <header><div class="brand">상태 왕국의 마법사</div><div class="chapter">Chapter 1 · 얼음 성의 봉인</div><div class="scene-count" id="sceneCount">진행도</div><div class="bar"><i id="topProgress"></i></div><button id="mapReturn" type="button" onclick="returnToKingdomMap()" aria-label="왕국 지도로 돌아가기" hidden>왕국 지도</button></header>
   <main>
@@ -1038,7 +1038,7 @@ function checkPreviewAccess(next,force=false){
 }
 function renderPreviewMap(){
  const entries=[['prologue','수련학교','마법 도구 사용법 연습',8,72],['chapter1','Chapter 1','얼음 성의 봉인',12,33],['chapter2','Chapter 2','얼어붙지 않은 호수',25,52],['boss','별서리 신전 · 원스타','여섯 기술로 최종전 체험',92,17]];
- el('kingdomMap').innerHTML=`<div class="map-inner"><div class="map-heading"><div><h1>상태 왕국 · 체험판</h1><p>1장 → 2장 → 원스타 최종전으로 이어집니다. 수련학교는 따로 선택해 연습할 수 있습니다.</p></div></div><div class="map-art"><img src="${ASSETS.worldMapNew}" alt="상태 왕국의 지도">${entries.map(([key,title,desc,x,y])=>`<button class="map-marker current ${key==='boss'?'final-marker':''}" style="left:${x}%;top:${y}%" type="button" onclick="startPreviewScene('${key}')"><strong>${title}</strong><small>${desc}</small></button>`).join('')}</div><p class="map-message">체험판은 로그인과 학습 기록 저장 없이 이용합니다. 공유자가 종료하면 플레이가 중단됩니다.</p></div>`;
+ el('kingdomMap').innerHTML=`<div class="map-inner"><div class="map-heading"><div><h1>상태 왕국 · 체험판</h1><p>수련학교 → 1장 → 2장 → 원스타 최종전으로 이어집니다.</p></div></div><div class="map-art"><img src="${ASSETS.worldMapNew}" alt="상태 왕국의 지도">${entries.map(([key,title,desc,x,y])=>`<button class="map-marker current ${key==='boss'?'final-marker':''}" style="left:${x}%;top:${y}%" type="button" onclick="startPreviewScene('${key}')"><strong>${title}</strong><small>${desc}</small></button>`).join('')}</div><p class="map-message">체험판은 로그인과 학습 기록 저장 없이 이용합니다. 공유자가 종료하면 플레이가 중단됩니다.</p></div>`;
 }
 function startPreviewScene(scene){
  if(previewClosed||!previewAllowed||!el('previewStart').hidden)return;
@@ -1080,7 +1080,7 @@ function initializePreview(){
  },true);
  el('previewStartButton').addEventListener('click',()=>{
   el('previewStartButton').disabled=true;
-  checkPreviewAccess(()=>{el('previewStart').hidden=true;el('gameApp').hidden=false;returnToKingdomMap();startKingdomChapter(1);state.learnedSpells=['fire','frost'];chapterStart()},true);
+  checkPreviewAccess(()=>{el('previewStart').hidden=true;el('gameApp').hidden=false;startKingdomChapter(1)},true);
  });
  checkPreviewAccess(()=>{el('previewStartButton').disabled=false;el('previewStartStatus').textContent='로그인 없이 체험할 수 있습니다.';el('openingNext').disabled=false;openingIndex=0;showOpeningBeat()},true);
  setInterval(()=>{if(!document.hidden&&!previewClosed)checkPreviewAccess(null,true)},5000);
