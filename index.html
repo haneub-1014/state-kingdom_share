@@ -518,7 +518,7 @@ body[data-chapter="7"] #content.boss-spell-layout{grid-template-columns:minmax(0
   <div class="opening-shadow"></div><div class="opening-mark"><span>상태 왕국의 마법사</span><small>왕국의 잃어버린 룬</small></div>
   <div class="opening-dialogue"><div class="opening-speaker" id="openingSpeaker">이야기꾼</div><p id="openingLine" aria-live="polite"></p><button id="openingNext" type="button">이야기 계속 보기</button></div>
 </section>
-<section class="login" id="previewStart" aria-label="체험판 시작"><div class="login-card"><div class="eyebrow">STATE KINGDOM · PREVIEW</div><h1>상태 왕국의 마법사</h1><p>수련학교에서 마법을 익히고 얼음 성, 호수, 원스타 최종전을 체험해 보세요.</p><button class="primary" type="button" id="previewStartButton" disabled>체험 시작</button><p id="previewStartStatus" role="status">체험판 공개 상태를 확인하고 있습니다.</p><p class="privacy">학번과 이름을 입력하지 않습니다. 학습 기록은 저장하지 않습니다.</p></div></section>
+<section class="login" id="previewStart" hidden aria-label="체험판 시작"><div class="login-card"><div class="eyebrow">STATE KINGDOM · PREVIEW</div><h1>상태 왕국의 마법사</h1><p>얼음 성에서 첫 번째 룬을 찾는 여정을 시작하세요. 수련학교는 왕국 지도에서 따로 체험할 수 있습니다.</p><button class="primary" type="button" id="previewStartButton" disabled>시작하기</button><p id="previewStartStatus" role="status">체험판 공개 상태를 확인하고 있습니다.</p><p class="privacy">학번과 이름을 입력하지 않습니다. 학습 기록은 저장하지 않습니다.</p></div></section>
 <div class="app">
   <header><div class="brand">상태 왕국의 마법사</div><div class="chapter">Chapter 1 · 얼음 성의 봉인</div><div class="scene-count" id="sceneCount">진행도</div><div class="bar"><i id="topProgress"></i></div><button id="mapReturn" type="button" onclick="returnToKingdomMap()" aria-label="왕국 지도로 돌아가기" hidden>왕국 지도</button></header>
   <main>
@@ -735,9 +735,9 @@ const openingBeats=[
  {speaker:'이야기꾼',line:'그때 수련학교의 견습 마법사 루미아에게 왕국의 부탁이 닿았습니다. 정령을 관찰하고 상태 변화의 비밀을 밝혀, 왕국의 룬을 되찾아 주세요.'}
 ];
 let openingIndex=0,openingTimer=null;
-function showOpeningBeat(){const beat=openingBeats[openingIndex],line=el('openingLine');el('openingSpeaker').textContent=beat.speaker;el('openingNext').textContent=openingIndex===openingBeats.length-1?'학번·이름 입력하기':'다음 이야기';if(openingTimer)clearInterval(openingTimer);const parts=typeof Intl.Segmenter==='function'?[...new Intl.Segmenter('ko',{granularity:'grapheme'}).segment(beat.line)].map(x=>x.segment):Array.from(beat.line);line.textContent='';let n=0;openingTimer=setInterval(()=>{n=Math.min(n+2,parts.length);line.textContent=parts.slice(0,n).join('');if(n===parts.length){clearInterval(openingTimer);openingTimer=null}},21)}
+function showOpeningBeat(){const beat=openingBeats[openingIndex],line=el('openingLine');el('openingSpeaker').textContent=beat.speaker;el('openingNext').textContent=openingIndex===openingBeats.length-1?'시작 화면으로':'다음 이야기';if(openingTimer)clearInterval(openingTimer);const parts=typeof Intl.Segmenter==='function'?[...new Intl.Segmenter('ko',{granularity:'grapheme'}).segment(beat.line)].map(x=>x.segment):Array.from(beat.line);line.textContent='';let n=0;openingTimer=setInterval(()=>{n=Math.min(n+2,parts.length);line.textContent=parts.slice(0,n).join('');if(n===parts.length){clearInterval(openingTimer);openingTimer=null}},21)}
 el('openingArt').src=ASSETS.kingdomCalamity;
-el('openingNext').addEventListener('click',()=>{if(openingTimer){clearInterval(openingTimer);openingTimer=null;el('openingLine').textContent=openingBeats[openingIndex].line;return}if(++openingIndex<openingBeats.length){showOpeningBeat();return}el('opening').hidden=true;if(isPreview()){showKingdomMap();return}showKingdomMap()});
+el('openingNext').addEventListener('click',()=>{if(openingTimer){clearInterval(openingTimer);openingTimer=null;el('openingLine').textContent=openingBeats[openingIndex].line;return}if(++openingIndex<openingBeats.length){showOpeningBeat();return}el('opening').hidden=true;el('previewStart').hidden=false});
 showOpeningBeat();
 
 function startLakeJourney(){setChapter('Chapter 2 · 얼어붙지 않은 호수');state.step=1;storySequence({image:ASSETS.lakeArrival,title:"두 번째 룬을 찾아 호수 너머로 향하자.",scene:1,prologue:false,cast:[]},[{"speaker": "루미아", "text": progressFlags.chapter1?"융해의 룬은 되찾았어. 다음은 호수 건너편의 응고의 룬이야. 그런데 길이 전부 물에 잠겼네.":"호수 건너편에 응고의 룬이 있어. 그런데 길이 전부 물에 잠겼네."}, {"speaker": "아쿠아", "text": "이곳은 마을 사이를 오가던 길이야. 우리뿐 아니라 뒤따라올 사람들도 건널 수 있도록 단단한 길이 필요해."}, {"speaker": "크리오", "text": "이번에는 흐르는 정령을 살펴보자. 얼음 성에서 본 대열과 어떻게 다른지 렌즈로 확인해 봐."}],lakeObservationScene)}
@@ -1035,8 +1035,8 @@ function checkPreviewAccess(next,force=false){
  return previewRequest.then(allowed=>{if(allowed&&!previewClosed)next?.();return allowed&&!previewClosed});
 }
 function renderPreviewMap(){
- const entries=[['prologue','프롤로그','상태 마법 수련학교',40,59],['chapter1','Chapter 1','얼음 성의 봉인',12,33],['chapter2','Chapter 2','얼어붙지 않은 호수',25,52],['boss','별서리 신전 · 원스타','여섯 기술로 최종전 체험',92,17]];
- el('kingdomMap').innerHTML=`<div class="map-inner"><div class="map-heading"><div><h1>상태 왕국 · 체험판</h1><p>수련학교, 1장, 2장, 원스타 최종전 중 체험할 장면을 선택하세요.</p></div></div><div class="map-art"><img src="${ASSETS.worldMapNew}" alt="상태 왕국의 지도">${entries.map(([key,title,desc,x,y])=>`<button class="map-marker current ${key==='boss'?'final-marker':''}" style="left:${x}%;top:${y}%" type="button" onclick="startPreviewScene('${key}')"><strong>${title}</strong><small>${desc}</small></button>`).join('')}</div><p class="map-message">체험판은 로그인과 학습 기록 저장 없이 이용합니다. 공유자가 종료하면 플레이가 중단됩니다.</p></div>`;
+ const entries=[['prologue','수련학교','마법 도구 사용법 연습',8,72],['chapter1','Chapter 1','얼음 성의 봉인',12,33],['chapter2','Chapter 2','얼어붙지 않은 호수',25,52],['boss','별서리 신전 · 원스타','여섯 기술로 최종전 체험',92,17]];
+ el('kingdomMap').innerHTML=`<div class="map-inner"><div class="map-heading"><div><h1>상태 왕국 · 체험판</h1><p>1장 → 2장 → 원스타 최종전으로 이어집니다. 수련학교는 따로 선택해 연습할 수 있습니다.</p></div></div><div class="map-art"><img src="${ASSETS.worldMapNew}" alt="상태 왕국의 지도">${entries.map(([key,title,desc,x,y])=>`<button class="map-marker current ${key==='boss'?'final-marker':''}" style="left:${x}%;top:${y}%" type="button" onclick="startPreviewScene('${key}')"><strong>${title}</strong><small>${desc}</small></button>`).join('')}</div><p class="map-message">체험판은 로그인과 학습 기록 저장 없이 이용합니다. 공유자가 종료하면 플레이가 중단됩니다.</p></div>`;
 }
 function startPreviewScene(scene){
  if(previewClosed||!previewAllowed||!el('previewStart').hidden)return;
@@ -1052,7 +1052,7 @@ function initializePreview(){
  if(!isPreview())return;
  state.preview=true;state.name='체험';state.studentNo='';state.classId='';
  if(openingTimer){clearInterval(openingTimer);openingTimer=null}
- el('opening').hidden=true;
+ el('opening').hidden=false;el('openingNext').disabled=true;el('openingLine').textContent='체험판 공개 상태를 확인하고 있습니다.';
  const replayAllowed=new WeakSet(),replayedPresses=new WeakSet();let clickCheckPending=false,heldPointer=null,heldKey=null;
  document.addEventListener('pointerup',()=>{heldPointer=null},true);
  document.addEventListener('pointercancel',()=>{heldPointer=null},true);
@@ -1078,9 +1078,9 @@ function initializePreview(){
  },true);
  el('previewStartButton').addEventListener('click',()=>{
   el('previewStartButton').disabled=true;
-  checkPreviewAccess(()=>{el('previewStart').hidden=true;showKingdomMap()},true);
+  checkPreviewAccess(()=>{el('previewStart').hidden=true;returnToKingdomMap();startKingdomChapter(1);state.learnedSpells=['fire','frost'];chapterStart()},true);
  });
- checkPreviewAccess(()=>{el('previewStartButton').disabled=false;el('previewStartStatus').textContent='로그인 없이 체험할 수 있습니다.'},true);
+ checkPreviewAccess(()=>{el('previewStartButton').disabled=false;el('previewStartStatus').textContent='로그인 없이 체험할 수 있습니다.';el('openingNext').disabled=false;openingIndex=0;showOpeningBeat()},true);
  setInterval(()=>{if(!document.hidden&&!previewClosed)checkPreviewAccess(null,true)},5000);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!previewClosed)checkPreviewAccess(null,true)});
 }
